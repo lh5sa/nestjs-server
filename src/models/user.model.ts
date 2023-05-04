@@ -1,4 +1,7 @@
-import { Table, Column, DataType, Model } from 'sequelize-typescript';
+import { Table, Column, DataType, Model, BelongsToMany, ForeignKey } from 'sequelize-typescript';
+import * as bcryptjs from 'bcryptjs';
+import { RoleModel } from './role.model';
+import { UserRoleModel } from './user-role.model';
 
 @Table({
   tableName: 'users',
@@ -31,6 +34,11 @@ export class UserModel extends Model<UserModel> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    set(value: string) {
+      // 将密码原文计算 hash 后存入数据库
+      const hash = bcryptjs.hashSync(value, 10);
+      this.setDataValue('password', hash);
+    },
   })
   password: string;
 
@@ -42,7 +50,17 @@ export class UserModel extends Model<UserModel> {
   status: number;
 
   @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  created_at: string;
+
+  @Column({
     type: DataType.VIRTUAL,
   })
   token?: string;
+
+  // 定义关系
+  @BelongsToMany(() => RoleModel, () => UserRoleModel)
+  roles: RoleModel[];
 }
