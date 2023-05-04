@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { UserModel } from 'src/models/user.model';
@@ -10,6 +10,8 @@ import { RoleModel } from 'src/models/role.model';
 import { PermissionModel } from 'src/models/permission.model';
 import { AssignRolesDto } from './dto/assign-roles.dto';
 import { UserRoleModel } from 'src/models/user-role.model';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -71,6 +73,21 @@ export class UsersService {
     });
   }
 
+  // 更新用户密码
+  async updatePassword(id: number, { old_password, new_password }: UpdatePasswordDto) {
+    // 需要先检查原密码
+    const user = await this.userModel.findByPk(id, {
+      attributes: { include: ['password'] },
+    });
+    const isValidPassword = await bcrypt.compare(old_password, user.password);
+    if (!isValidPassword) {
+      throw new BadRequestException('原密码有误');
+    }
+    return await this.update(id, {
+      password: new_password,
+    });
+  }
+
   // 更新用户信息
   async update(id: number, updateUserDto: UpdateUserDto) {
     return await this.userModel.update(updateUserDto, {
@@ -96,7 +113,7 @@ export class UsersService {
 
       // 创建新的数据
       const rows = role_ids.map((id) => ({ user_id, role_id: id }));
-      await this.userRoleModel.bulkCreate(rows, { transaction })
+      await this.userRoleModel.bulkCreate(rows, { transaction });
     });
   }
 }

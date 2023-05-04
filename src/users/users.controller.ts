@@ -19,10 +19,7 @@ export class UsersController {
 
   @Patch('/update_password')
   async updatePassword(@AuthUser() authUser: UserModel, @Body() updateUserDto: UpdatePasswordDto) {
-    const data: UpdateUserDto = {
-      password: updateUserDto.new_password,
-    };
-    return await this.usersService.update(authUser.id, data);
+    return await this.usersService.updatePassword(authUser.id, updateUserDto);
   }
 
   @Post('/userroles')
