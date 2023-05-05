@@ -19,33 +19,25 @@ export class PermissionModel extends Model<PermissionModel> {
   })
   id: number;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
+  @Column({ type: DataType.INTEGER.UNSIGNED, allowNull: false })
+  type: number;
+
+  @Column({ type: DataType.STRING, allowNull: false })
   desc: string;
 
   @Column({
-    type: DataType.INTEGER.UNSIGNED,
-    allowNull: false,
-  })
-  type: number;
-
-  @Column({
     type: DataType.STRING,
+    set(value: string) {
+      this.setDataValue('method', value.toUpperCase());
+    },
   })
-  method: number;
+  method: string;
 
-  @Column({
-    type: DataType.STRING,
-  })
-  icon: number;
+  @Column({ type: DataType.STRING })
+  icon: string;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  path: number;
+  @Column({ type: DataType.STRING })
+  path: string;
 
   @Column({
     type: DataType.INTEGER.UNSIGNED,

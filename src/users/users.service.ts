@@ -1,24 +1,86 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
-import { UserModel } from 'src/models/user.model';
-import { CreateUserDto } from './dto/create-user.dto';
-import { PaginateDataDto } from './dto/paginate-data.dto';
-import { SearchUserDto } from './dto/search-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { RoleModel } from 'src/models/role.model';
-import { PermissionModel } from 'src/models/permission.model';
-import { AssignRolesDto } from './dto/assign-roles.dto';
-import { UserRoleModel } from 'src/models/user-role.model';
-import { UpdatePasswordDto } from './dto/update-password.dto';
 import * as bcrypt from 'bcryptjs';
+import { Op } from 'sequelize';
+import { PaginateDataDto } from 'src/common/dto/paginate-data.dto';
+import { PermissionModel } from 'src/models/permission.model';
+import { RoleModel } from 'src/models/role.model';
+import { UserRoleModel } from 'src/models/user-role.model';
+import { UserModel } from 'src/models/user.model';
+import { AssignRolesDto } from './dto/assign-roles.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { SearchUserDto } from './dto/search-user.dto';
+import { LoginUserDto } from 'src/auth/dto/login-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(UserModel) private readonly userModel: typeof UserModel,
-    @InjectModel(UserRoleModel) private readonly userRoleModel: typeof UserRoleModel
+    @InjectModel(UserRoleModel) private readonly userRoleModel: typeof UserRoleModel,
+    @InjectModel(RoleModel) private readonly roleModel: typeof RoleModel
   ) {}
+
+  // 登录
+  async login({ email, password }: LoginUserDto): Promise<UserModel> {
+    const user = await this.userModel.findOne({
+      attributes: { include: ['password'] },
+      where: { email },
+      raw: true,
+    });
+    if (!user) {
+      throw new UnauthorizedException('用户名或密码有误');
+    }
+    const isValidUser = await bcrypt.compare(password, user.password);
+    if (!isValidUser) {
+      throw new UnauthorizedException('用户名或密码有误');
+    }
+    delete user.password;
+
+    // 登录时需要查询用户所有的权限
+    user.permissions = await this.getPermsByUserId(user.id);
+    return user;
+  }
+
+  // 根据用户ID查询出当前用户所有的权限
+  async getPermsByUserId(id: number): Promise<PermissionModel[]> {
+    // 1. 查出用户所有的角色
+    const userRoles = await this.userRoleModel.findAll({ where: { user_id: id } });
+    if (userRoles.length === 0) {
+      return [];
+    }
+    // 2. 根据用户所有的角色查询出所有的权限
+    const roleIds = userRoles.map((item) => item.id);
+    const roles = await this.roleModel.findAll({
+      where: {
+        id: { [Op.in]: roleIds },
+      },
+      include: {
+        model: PermissionModel,
+        through: { attributes: [] },
+      },
+    });
+    if (roles.length === 0) {
+      return [];
+    }
+
+    // 3.只需要权限,过滤数据
+    const permissions = [];
+    for (const item of roles) {
+      permissions.push(...item.permissions);
+    }
+    return permissions;
+  }
+
+  // 根据ID查询用户
+  async findUserById(id: number): Promise<UserModel> {
+    return await this.userModel.findByPk(id, {
+      attributes: {
+        exclude: ['password'],
+      },
+    });
+  }
 
   // 创建用户信息
   async create(createUserDto: CreateUserDto): Promise<UserModel> {

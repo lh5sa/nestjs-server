@@ -8,6 +8,7 @@ import { configs } from './config';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { UploadModule } from './upload/upload.module';
+import { PermissionsModule } from './permissions/permissions.module';
 
 @Module({
   imports: [
@@ -20,8 +21,11 @@ import { UploadModule } from './upload/upload.module';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => config.get('database'),
     }),
-    AuthModule, // 暂时先不开启 登录验证
-    UsersModule, RolesModule, UploadModule,
+    AuthModule,
+    UsersModule,
+    RolesModule,
+    UploadModule,
+    PermissionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, SequelizeModule],

@@ -1,7 +1,8 @@
-import { Table, Column, DataType, Model, BelongsToMany, ForeignKey } from 'sequelize-typescript';
+import { Table, Column, DataType, Model, BelongsToMany } from 'sequelize-typescript';
 import * as bcryptjs from 'bcryptjs';
 import { RoleModel } from './role.model';
 import { UserRoleModel } from './user-role.model';
+import { PermissionModel } from './permission.model';
 
 @Table({
   tableName: 'users',
@@ -19,16 +20,13 @@ export class UserModel extends Model<UserModel> {
   })
   id: number;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
+  @Column({ type: DataType.STRING, allowNull: false })
   username: string;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
+  @Column({ type: DataType.STRING, allowNull: true })
+  avatar: string;
+
+  @Column({ type: DataType.STRING, allowNull: false })
   email: string;
 
   @Column({
@@ -49,16 +47,15 @@ export class UserModel extends Model<UserModel> {
   })
   status: number;
 
-  @Column({
-    type: DataType.DATE,
-    allowNull: true,
-  })
+  @Column({ type: DataType.DATE, allowNull: true })
   created_at: string;
 
-  @Column({
-    type: DataType.VIRTUAL,
-  })
+  // 登录时的 token
+  @Column({ type: DataType.VIRTUAL })
   token?: string;
+
+  // 登录时需要的权限
+  permissions?: PermissionModel[];
 
   // 定义关系
   @BelongsToMany(() => RoleModel, () => UserRoleModel)

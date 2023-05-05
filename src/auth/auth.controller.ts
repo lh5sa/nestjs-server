@@ -12,9 +12,4 @@ export class AuthController {
   async login(@Body() lgoinUser: LoginUserDto) {
     return await this.authService.login(lgoinUser);
   }
-
-  @Get('/list')
-  async list() {
-    return await this.authService.getUsers();
-  }
 }

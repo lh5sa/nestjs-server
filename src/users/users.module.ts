@@ -13,5 +13,6 @@ import { PermissionModel } from 'src/models/permission.model';
   imports: [SequelizeModule.forFeature([UserRoleModel, RoleModel, UserModel, PermissionModel, RolePermissionModel])],
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {}
