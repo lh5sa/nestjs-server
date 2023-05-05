@@ -5,7 +5,7 @@ import { Observable, map } from 'rxjs';
 export class ResponseFormatterInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map((data) => {
+      map((data = null) => {
         // 操作成功的响应体格式
         const body: ResponseBodyContent = {
           success: true,

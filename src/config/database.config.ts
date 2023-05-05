@@ -1,15 +1,17 @@
 import { registerAs } from '@nestjs/config';
 import { SequelizeModuleOptions } from '@nestjs/sequelize';
 
+const { DB_TYPE, DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME } = process.env;
+
 export default registerAs(
   'database',
   (): SequelizeModuleOptions => ({
-    dialect: process.env.DB_TYPE as 'mysql',
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
+    dialect: DB_TYPE as 'mysql',
+    host: DB_HOST,
+    port: Number(DB_PORT),
+    username: DB_USER,
+    password: DB_PASS,
+    database: DB_NAME,
     autoLoadModels: true,
     synchronize: false,
   })

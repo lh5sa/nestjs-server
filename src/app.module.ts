@@ -6,6 +6,8 @@ import { AuthModule } from './auth/auth.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { configs } from './config';
 import { UsersModule } from './users/users.module';
+import { RolesModule } from './roles/roles.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -19,7 +21,7 @@ import { UsersModule } from './users/users.module';
       useFactory: (config: ConfigService) => config.get('database'),
     }),
     AuthModule, // 暂时先不开启 登录验证
-    UsersModule,
+    UsersModule, RolesModule, UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService, SequelizeModule],
