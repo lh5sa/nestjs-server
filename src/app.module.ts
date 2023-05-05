@@ -9,12 +9,21 @@ import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { UploadModule } from './upload/upload.module';
 import { PermissionsModule } from './permissions/permissions.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseCacheInterceptor } from './global/response-cache.interceptor';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: configs,
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => config.get('cache'),
     }),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
@@ -28,6 +37,13 @@ import { PermissionsModule } from './permissions/permissions.module';
     PermissionsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SequelizeModule],
+  providers: [
+    AppService,
+    SequelizeModule,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseCacheInterceptor,
+    },
+  ],
 })
 export class AppModule {}

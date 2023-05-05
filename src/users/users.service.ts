@@ -79,6 +79,7 @@ export class UsersService {
       attributes: {
         exclude: ['password'],
       },
+      raw: true,
     });
   }
 

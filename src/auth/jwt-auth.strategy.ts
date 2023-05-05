@@ -6,7 +6,7 @@ import { UserModel } from 'src/models/user.model';
 import { AuthService } from './auth.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt-auth') {
   constructor(private readonly authService: AuthService, private readonly config: ConfigService) {
     super({
       ignoreExpiration: false,
