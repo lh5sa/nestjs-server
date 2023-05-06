@@ -46,12 +46,14 @@ export class UsersService {
   // 根据用户ID查询出当前用户所有的权限
   async getPermsByUserId(id: number): Promise<PermissionModel[]> {
     // 1. 查出用户所有的角色
-    const userRoles = await this.userRoleModel.findAll({ where: { user_id: id } });
+    const userRoles = await this.userRoleModel.findAll({
+      where: { user_id: id },
+    });
     if (userRoles.length === 0) {
       return [];
     }
     // 2. 根据用户所有的角色查询出所有的权限
-    const roleIds = userRoles.map((item) => item.id);
+    const roleIds = userRoles.map((item) => item.role_id);
     const roles = await this.roleModel.findAll({
       where: {
         id: { [Op.in]: roleIds },

@@ -15,7 +15,7 @@ export class CreatePermissionDto {
   type: number;
 
   @ValidateIf((o) => o.type === 1)
-  @IsIn(['get', 'post', 'patch', 'delete'], { message: 'method只能是 get,post,patch,delete' })
+  @IsIn(['GET', 'POST', 'PATCH', 'DELETE'], { message: 'method只能是 get,post,patch,delete' })
   method: string;
 
   @ValidateIf((o) => o.type === 0)

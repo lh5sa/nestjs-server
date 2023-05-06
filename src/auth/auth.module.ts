@@ -8,6 +8,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { UsersModule } from 'src/users/users.module';
+import { RbacAuthGuard } from './rbac-auth.guard';
 
 @Module({
   imports: [
@@ -27,6 +28,10 @@ import { UsersModule } from 'src/users/users.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RbacAuthGuard,
     },
   ],
 })

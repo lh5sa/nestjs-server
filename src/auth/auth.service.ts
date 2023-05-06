@@ -1,6 +1,7 @@
+import { Request } from 'express';
 import { Cache } from 'cache-manager';
 import { UsersService } from './../users/users.service';
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, Delete } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UserModel } from 'src/models/user.model';
@@ -39,5 +40,41 @@ export class AuthService {
       this.cacheMgr.set(key, authUser, 3 * MINUTES_TO_MS); // 3 minutes
     }
     return authUser;
+  }
+
+  // 验证是否有权限
+  async hasPermissions(request: Request): Promise<boolean> {
+    const check = (path: string, url: string, method: string, id: string) => {
+      method = method.toUpperCase();
+      const allowMethods = ['GET', 'POST', 'PATCH', 'DELETE'];
+      if (!allowMethods.includes(method)) {
+        return false;
+      }
+      if (method === 'PATCH' || method === 'DELETE') {
+        path = path.replace(':id', id);
+      }
+      return path === url;
+    };
+
+    const authUser = <UserModel>request.user;
+    const paramId = request.params.id;
+    const permissions = await this.getAuthUserPerms(authUser);
+    for (const item of permissions) {
+      if (check(item.path, request.path, request.method, paramId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // 获取登录用户的所有权限(缓存)
+  async getAuthUserPerms(user: UserModel) {
+    const key = `auth_user_perms_${user.id}`;
+    let permissions: any = await this.cacheMgr.get(key);
+    if (!permissions) {
+      permissions = await this.usersService.getPermsByUserId(user.id);
+      this.cacheMgr.set(key, permissions, 10 * MINUTES_TO_MS); // 10 minus
+    }
+    return permissions;
   }
 }

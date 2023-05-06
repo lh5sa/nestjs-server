@@ -59,13 +59,13 @@ export class RolesService {
 
   // 给角色分配权限
   async assignPermissions({ role_id, permission_ids }: AssignPermissionsDto) {
-    this.rolePermissionModel.sequelize.transaction(async (transaction) => {
-      this.rolePermissionModel.destroy({
+    return await this.rolePermissionModel.sequelize.transaction(async (transaction) => {
+      await this.rolePermissionModel.destroy({
         where: { role_id },
         transaction,
       });
       const rows = permission_ids.map((id: number) => ({ role_id, permission_id: id }));
-      this.rolePermissionModel.bulkCreate(rows, {
+      await this.rolePermissionModel.bulkCreate(rows, {
         transaction,
       });
     });
