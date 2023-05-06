@@ -11,12 +11,14 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { SearchUserDto } from './dto/search-user.dto';
+import { SkipRbac } from 'src/auth/decorators/skip-auth.decorator';
 
 @Injectable()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @SkipRbac()
   @Patch('/update_password')
   async updatePassword(@AuthUser() authUser: UserModel, @Body() updateUserDto: UpdatePasswordDto) {
     return await this.usersService.updatePassword(authUser.id, updateUserDto);
