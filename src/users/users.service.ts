@@ -39,12 +39,12 @@ export class UsersService {
     delete user.password;
 
     // 登录时需要查询用户所有的权限
-    user.permissions = await this.getPermsByUserId(user.id);
+    user.permissions = await this.getPermsByUserId(user.id, true);
     return user;
   }
 
   // 根据用户ID查询出当前用户所有的权限
-  async getPermsByUserId(id: number): Promise<PermissionModel[]> {
+  async getPermsByUserId(id: number, onlyRoute = false): Promise<PermissionModel[]> {
     // 1. 查出用户所有的角色
     const userRoles = await this.userRoleModel.findAll({
       where: { user_id: id },
@@ -60,7 +60,10 @@ export class UsersService {
       },
       include: {
         model: PermissionModel,
-        through: { attributes: [] },
+        through: {
+          attributes: [],
+        },
+        where: onlyRoute ? { type: 0 } : {},
       },
     });
     if (roles.length === 0) {
