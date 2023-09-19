@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import { Cache } from 'cache-manager';
 import { UsersService } from './../users/users.service';
-import { CACHE_MANAGER, Inject, Injectable, Delete } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UserModel } from 'src/models/user.model';
