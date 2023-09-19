@@ -17,10 +17,9 @@ export class ExceptionHandlerFilter<T extends Error> implements ExceptionFilter 
     }
 
     // reponse body 格式
-    const body: ResponseBodyContent = {
+    const body: ResponseBodyStruct = {
       success: false,
-      status_code: status,
-      message,
+      msg: message,
       data,
     };
     response.status(status).json(body);

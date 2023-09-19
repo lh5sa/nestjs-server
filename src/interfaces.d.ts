@@ -1,8 +1,7 @@
 // 响应体格式
-interface ResponseBodyContent {
+interface ResponseBodyStruct {
   success: boolean;
-  status_code: number;
-  message: string;
+  msg: string;
   data: any;
 }
 

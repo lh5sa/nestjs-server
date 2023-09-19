@@ -7,10 +7,9 @@ export class ResponseFormatterInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((data = null) => {
         // 操作成功的响应体格式
-        const body: ResponseBodyContent = {
+        const body: ResponseBodyStruct = {
           success: true,
-          message: 'success',
-          status_code: 200, // 成功
+          msg: 'success',
           data,
         };
         return body;
