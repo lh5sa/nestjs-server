@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { BelongsToMany, Column, DataType, Model, Table } from "sequelize-typescript";
 import { PermissionModel } from "./permission.model";
 import { RolePermissionModel } from "./role-permission.model";
@@ -7,6 +8,7 @@ import { RolePermissionModel } from "./role-permission.model";
   timestamps: false,
 })
 export class RoleModel extends Model<RoleModel> {
+  @ApiProperty({ description: "角色表ID" })
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
@@ -14,18 +16,21 @@ export class RoleModel extends Model<RoleModel> {
   })
   declare id: number;
 
+  @ApiProperty({ description: "角色名称" })
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
   role_name: string;
 
+  @ApiProperty({ description: "角色描述" })
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
   role_desc: string;
 
+  @ApiProperty({ description: "角色拥有的权限ID数组" })
   @BelongsToMany(() => PermissionModel, () => RolePermissionModel)
   permissions: PermissionModel[];
 

@@ -4,6 +4,7 @@ import { ExceptionHandlerFilter } from "./global/exception-handler.filter";
 import { AppModule } from "./app.module";
 import { ValidationPipe } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 
 const { UPLOAD_DIR, APP_PORT } = process.env;
 async function bootstrap() {
@@ -26,6 +27,17 @@ async function bootstrap() {
 
   // 设置全局拦截器: 格式化响应体
   app.useGlobalInterceptors(new ResponseFormatterInterceptor());
+
+  // swagger API 文档集成
+  SwaggerModule.setup("swagger", app, () => {
+    const config = new DocumentBuilder()
+      .setTitle("simple admin API")
+      .setDescription("The simple admin API")
+      .setVersion("1.0")
+      .addTag("cats")
+      .build();
+    return SwaggerModule.createDocument(app, config);
+  });
 
   await app.listen(APP_PORT || 3000);
 }
